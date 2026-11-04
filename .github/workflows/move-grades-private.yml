@@ -2,10 +2,9 @@
 # git rm commit. Copies are archived in the private repo Dparadigm/ops-board-grades.
 # No history rewrite, no force-push. Safe to re-run (no-op once files are gone).
 name: Move grade files to private archive (one-shot)
+# Already ran on 2026-11-04 (commit 2ad3676). Now manual-only so it never runs again on its own.
 on:
-  push:
-    branches: [main]
-    paths: ['.github/workflows/move-grades-private.yml']
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
