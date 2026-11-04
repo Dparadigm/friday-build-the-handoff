@@ -1,0 +1,36 @@
+# One-shot: removes participant grade files from the public tree in a single
+# git rm commit. Copies are archived in the private repo Dparadigm/ops-board-grades.
+# No history rewrite, no force-push. Safe to re-run (no-op once files are gone).
+name: Move grade files to private archive (one-shot)
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/move-grades-private.yml']
+permissions:
+  contents: write
+jobs:
+  remove:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: git rm grade files
+        run: |
+          set -e
+          files=(
+            "grades/1.json"
+            "grades/123.json"
+            "grades/2.json"
+            "grades/3.json"
+            "grades/4.json"
+            "grades/group-test.json"
+            "grades/group-testing.json"
+            "grades/test.json"
+          )
+          present=()
+          for f in "${files[@]}"; do
+            if git ls-files --error-unmatch "$f" >/dev/null 2>&1; then present+=("$f"); fi
+          done
+          if [ ${#present[@]} -eq 0 ]; then echo "Nothing to remove"; exit 0; fi
+          git rm -q -- "${present[@]}"
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -q -m "Remove participant grade files from public site (8 files, archived privately in Dparadigm/ops-board-grades)"
+          git push origin HEAD:main
